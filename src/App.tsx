@@ -24,6 +24,7 @@ import {
   DownloadIcon,
   FilmIcon,
   FolderIcon,
+  InfoIcon,
   ForwardIcon,
   KeyboardIcon,
   LockIcon,
@@ -45,6 +46,7 @@ import { ExportCancelled, exportVideo } from './video/export';
 import type { MediaInfo } from './ingest/protocol';
 import { useTheme } from './theme';
 import { ThemePicker } from './components/ThemePicker';
+import { AboutDialog, bugReportUrl } from './components/AboutDialog';
 import { formatBytes, formatTime, parseTime } from './time';
 
 const SAMPLES_PER_PEAK = 128;
@@ -123,6 +125,7 @@ export default function App() {
   const timeline = useRef<TimelineHandle>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const shortcutsDialog = useRef<HTMLDialogElement>(null);
+  const aboutDialog = useRef<HTMLDialogElement>(null);
   const ingestRef = useRef<Ingest | null>(null);
 
   const bucketSec = clip ? SAMPLES_PER_PEAK / clip.sampleRate : 1;
@@ -560,6 +563,9 @@ export default function App() {
             Local only
           </span>
           <span className="topbar-sep" aria-hidden="true" />
+          <IconButton label="About, credits and feedback" onClick={() => aboutDialog.current?.showModal()}>
+            <InfoIcon />
+          </IconButton>
           <IconButton label="Keyboard shortcuts (?)" onClick={() => shortcutsDialog.current?.showModal()}>
             <KeyboardIcon />
           </IconButton>
@@ -573,6 +579,7 @@ export default function App() {
           dragOver={dragOver}
           onBrowse={() => fileInput.current?.click()}
           onSample={openSample}
+          onAbout={() => aboutDialog.current?.showModal()}
         />
       ) : (
         <div className="shell">
@@ -884,6 +891,15 @@ export default function App() {
               {clip.sourceNote}
             </span>
           )}
+          <a
+            className="statusbar-link"
+            href={bugReportUrl()}
+            onClick={(e) => (e.currentTarget.href = bugReportUrl())}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Report a problem
+          </a>
           <span
             className="statusbar-end"
             title={
@@ -899,6 +915,7 @@ export default function App() {
       )}
 
       <ShortcutsDialog ref={shortcutsDialog} />
+      <AboutDialog ref={aboutDialog} />
 
       {dragOver && clip && (
         <div className="drop-overlay">
@@ -926,7 +943,13 @@ export default function App() {
 /** WebCodecs is what makes long files practical; without it only the small-file fallback works. */
 const HAS_WEBCODECS = typeof window !== 'undefined' && 'AudioDecoder' in window && 'VideoDecoder' in window;
 
-function OpenScreen(props: { loading: string | null; dragOver: boolean; onBrowse: () => void; onSample: () => void }) {
+function OpenScreen(props: {
+  loading: string | null;
+  dragOver: boolean;
+  onBrowse: () => void;
+  onSample: () => void;
+  onAbout: () => void;
+}) {
   return (
     <main className="open">
       <div className="open-grid">
@@ -1035,6 +1058,21 @@ function OpenScreen(props: { loading: string | null; dragOver: boolean; onBrowse
           <span>A 9:16 or 1:1 MP4 for Reels, Shorts and TikTok, or WAV and MP3 for audio.</span>
         </li>
       </ol>
+
+      <footer className="open-footer">
+        <span>Made by Harish Rao · MIT licence</span>
+        <nav aria-label="Project links">
+          <a href="https://github.com/harishrao1/clip-editor" target="_blank" rel="noreferrer">
+            Source on GitHub
+          </a>
+          <a href={bugReportUrl()} onClick={(e) => (e.currentTarget.href = bugReportUrl())} target="_blank" rel="noreferrer">
+            Report a problem
+          </a>
+          <button type="button" className="link" onClick={props.onAbout}>
+            About and credits
+          </button>
+        </nav>
+      </footer>
     </main>
   );
 }

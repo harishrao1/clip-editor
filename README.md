@@ -103,3 +103,15 @@ Silence detection on the same film found 309 gaps (12.9 min) at an auto threshol
 - [ ] **Peak mipmaps**: several bucket sizes so the zoomed-out view of a 3-hour file is O(width) per redraw
 - [ ] **WAV encode in a worker** so long exports don't block the UI
 - [ ] **Benchmarks** in a browser that exposes `measureUserAgentSpecificMemory`, to include worker memory
+
+## Feedback
+
+Found a bug or have an idea? [Open an issue](https://github.com/harishrao1/clip-editor/issues/new/choose). The **Report a problem** link in the app (status bar, open screen and About dialog) pre-fills your browser, app version and build, but never anything about your files.
+
+## Credits
+
+Built with [Mediabunny](https://mediabunny.dev) (MPL-2.0), [FFmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm) (MIT; the FFmpeg core with LAME is GPL-2.0-or-later and is loaded from jsDelivr only when exporting MP3), [Geist](https://vercel.com/font) (OFL-1.1) and [React](https://react.dev) (MIT).
+
+## License
+
+[MIT](LICENSE) © 2026 Harish Rao

@@ -100,6 +100,12 @@ export const WaveIcon = (p: IconProps) => (
     <path d="M5 10v4M9.5 6v12M14 8.5v7M18.5 4.5v15" strokeWidth={2.2} strokeLinecap="round" />
   </Icon>
 );
+export const InfoIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 11v5.5M12 7.5v.01" strokeWidth={2} />
+  </Icon>
+);
 export const KeyboardIcon = (p: IconProps) => (
   <Icon {...p}>
     <rect x="3" y="6" width="18" height="12" rx="1.5" />
