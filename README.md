@@ -60,7 +60,7 @@ Any third-party resource the page loads must then be CORS-enabled or send `Cross
 
 ## Design
 
-The default theme is "Sand": warm paper surfaces, dark brown ink and a terracotta accent for anything you can act on; cuts use a deep crimson so removed never reads as selected. A picker in the top bar offers six more themes (Lavender, Sky, Sand night, Graphite, Ocean, Midnight), and the choice is remembered. Each theme is about 18 base colours in `scripts/gen-themes.mjs`; running `npm run themes` derives every other token, including the timeline and spectrum canvas colours (`--tl-*`, `--viz-*`), into `src/themes.css`. The canvases read those CSS custom properties, so they follow the theme. Type is Geist Sans and Geist Mono, self-hosted via `@fontsource` so the cross-origin isolation headers don't block them. On desktop the editor fills the window: stage, timeline dock and inspector are floating panels on the window frame, and only the inspector scrolls.
+The default theme is "Sand": warm paper surfaces, dark brown ink and a terracotta accent for anything you can act on; cuts use a deep crimson so removed never reads as selected. A picker in the top bar offers six more themes (Lavender, Sky, Sand night, Graphite, Ocean, Midnight), and the choice is remembered. Each theme is about 18 base colours in `scripts/gen-themes.mjs`; running `npm run themes` derives every other token, including the timeline and spectrum canvas colours (`--tl-*`, `--viz-*`), into `src/themes.css`. The canvases read those CSS custom properties, so they follow the theme. Type is Inter for the interface and Geist Mono for timecodes and numbers, both self-hosted via `@fontsource` so the cross-origin isolation headers don't block them. On desktop the editor fills the window: stage, timeline dock and inspector are floating panels on the window frame, and only the inspector scrolls.
 
 ## Measurements
 
@@ -110,7 +110,7 @@ Found a bug or have an idea? [Open an issue](https://github.com/harishrao1/clip-
 
 ## Credits
 
-Built with [Mediabunny](https://mediabunny.dev) (MPL-2.0), [FFmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm) (MIT; the FFmpeg core with LAME is GPL-2.0-or-later and is loaded from jsDelivr only when exporting MP3), [Geist](https://vercel.com/font) (OFL-1.1) and [React](https://react.dev) (MIT).
+Built with [Mediabunny](https://mediabunny.dev) (MPL-2.0), [FFmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm) (MIT; the FFmpeg core with LAME is GPL-2.0-or-later and is loaded from jsDelivr only when exporting MP3), [Inter](https://rsms.me/inter/) and [Geist Mono](https://vercel.com/font) (OFL-1.1) and [React](https://react.dev) (MIT).
 
 ## License
 

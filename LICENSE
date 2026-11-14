@@ -28,5 +28,5 @@ Third-party software used by Clip Editor keeps its own licence:
 - FFmpeg.wasm (@ffmpeg/ffmpeg, @ffmpeg/util): MIT
 - FFmpeg core with LAME, loaded at runtime from jsDelivr for MP3 export:
   GPL-2.0-or-later (https://github.com/ffmpegwasm/ffmpeg.wasm)
-- Geist Sans and Geist Mono fonts: SIL Open Font License 1.1
+- Inter and Geist Mono fonts: SIL Open Font License 1.1
 - React: MIT

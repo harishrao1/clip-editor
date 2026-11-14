@@ -45,7 +45,8 @@ export function bugReportUrl(): string {
 const CREDITS: [name: string, what: string, licence: string, url: string][] = [
   ['Mediabunny', 'Reading and writing media files, WebCodecs decoding and encoding', 'MPL-2.0', 'https://mediabunny.dev'],
   ['FFmpeg.wasm', 'MP3 encoding with FFmpeg and LAME, downloaded only when you export an MP3', 'MIT; FFmpeg core GPL-2.0+', 'https://github.com/ffmpegwasm/ffmpeg.wasm'],
-  ['Geist', 'Sans and mono typefaces by Vercel', 'OFL-1.1', 'https://vercel.com/font'],
+  ['Inter', 'Interface typeface by Rasmus Andersson', 'OFL-1.1', 'https://rsms.me/inter/'],
+  ['Geist Mono', 'Timecodes and numbers, by Vercel', 'OFL-1.1', 'https://vercel.com/font'],
   ['React', 'Interface', 'MIT', 'https://react.dev'],
 ];
 
