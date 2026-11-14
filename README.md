@@ -1,6 +1,8 @@
 # Clip Editor
 
-A browser-only podcast/audio clip editor. Files never leave the machine: decoding, waveform analysis, trimming, effects and encoding all run client-side. Files are never loaded into memory whole, so multi-hour recordings open in under a second.
+**Live: [clip-editor-mocha.vercel.app](https://clip-editor-mocha.vercel.app)**
+
+A browser-only clip editor for podcasts, interviews and screen recordings. Files never leave the machine: decoding, waveform analysis, trimming, silence removal, effects and encoding (including 9:16 MP4) all run client-side. Files are never loaded into memory whole, so multi-hour recordings open in under a second.
 
 ## Run
 
@@ -9,7 +11,11 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173. The header badge shows whether the page is **cross-origin isolated**, which is required for `SharedArrayBuffer` and therefore multi-threaded FFmpeg.wasm.
+Open http://localhost:5173. The status bar shows whether the page is **cross-origin isolated**, which is required for `SharedArrayBuffer` and therefore multi-threaded FFmpeg.wasm.
+
+## Deploy
+
+Deployed on Vercel from the `main` branch; every push redeploys. `vercel.json` sends the `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers the app needs.
 
 ## How it works
 
