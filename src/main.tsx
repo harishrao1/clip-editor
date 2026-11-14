@@ -6,6 +6,7 @@ import '@fontsource/geist-sans/600.css';
 import '@fontsource/geist-mono/400.css';
 import '@fontsource/geist-mono/500.css';
 import App from './App';
+import './themes.css';
 import './App.css';
 
 createRoot(document.getElementById('root')!).render(

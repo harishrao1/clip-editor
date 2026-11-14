@@ -26,21 +26,32 @@ function getFFmpeg(): Promise<FFmpeg> {
   return instance;
 }
 
+/**
+ * FFmpeg.wasm's 'progress' event stays at 0 for WAV input (no duration in its estimate),
+ * so progress is read from the encoder's own "time=hh:mm:ss.cc" log lines instead.
+ */
 export async function wavToMp3(
   wav: Blob,
+  durationSec: number,
   onProgress: (stage: string, ratio?: number) => void,
 ): Promise<Blob> {
   onProgress('Loading MP3 encoder');
   const ffmpeg = await getFFmpeg();
-  const report = ({ progress }: { progress: number }) => onProgress('Encoding MP3', progress);
-  ffmpeg.on('progress', report);
+  onProgress('Encoding MP3', 0);
+  const report = ({ message }: { message: string }) => {
+    const m = /time=s*(d+):(d+):(d+(?:.d+)?)/.exec(message);
+    if (!m || durationSec <= 0) return;
+    const t = +m[1] * 3600 + +m[2] * 60 + +m[3];
+    onProgress('Encoding MP3', Math.min(1, t / durationSec));
+  };
+  ffmpeg.on('log', report);
   try {
     await ffmpeg.writeFile('in.wav', await fetchFile(wav));
     await ffmpeg.exec(['-i', 'in.wav', '-codec:a', 'libmp3lame', '-b:a', '192k', 'out.mp3']);
     const data = await ffmpeg.readFile('out.mp3');
     return new Blob([new Uint8Array(data as Uint8Array)], { type: 'audio/mpeg' });
   } finally {
-    ffmpeg.off('progress', report);
+    ffmpeg.off('log', report);
     // Free the in-memory FS so repeated exports don't accumulate.
     await ffmpeg.deleteFile('in.wav').catch(() => {});
     await ffmpeg.deleteFile('out.mp3').catch(() => {});

@@ -60,7 +60,7 @@ Any third-party resource the page loads must then be CORS-enabled or send `Cross
 
 ## Design
 
-The visual direction is "Studio light": white cards on a soft grey frame with one calm blue accent; cuts use a separate red so removed never reads as selected. Light is the default, and a matching dark mode is one click away in the top bar (the choice is remembered). Canvas colours are read from CSS custom properties (`--tl-*`, `--viz-*` in `src/App.css`), so both canvases follow the theme. Type is Geist Sans and Geist Mono, self-hosted via `@fontsource` so the cross-origin isolation headers don't block them. On desktop the editor fills the window: stage, timeline dock and inspector are floating panels on the window frame, and only the inspector scrolls.
+The default theme is "Sand": warm paper surfaces, dark brown ink and a terracotta accent for anything you can act on; cuts use a deep crimson so removed never reads as selected. A picker in the top bar offers six more themes (Lavender, Sky, Sand night, Graphite, Ocean, Midnight), and the choice is remembered. Each theme is about 18 base colours in `scripts/gen-themes.mjs`; running `npm run themes` derives every other token, including the timeline and spectrum canvas colours (`--tl-*`, `--viz-*`), into `src/themes.css`. The canvases read those CSS custom properties, so they follow the theme. Type is Geist Sans and Geist Mono, self-hosted via `@fontsource` so the cross-origin isolation headers don't block them. On desktop the editor fills the window: stage, timeline dock and inspector are floating panels on the window frame, and only the inspector scrolls.
 
 ## Measurements
 
@@ -95,7 +95,7 @@ Silence detection on the same film found 309 gaps (12.9 min) at an auto threshol
 - [ ] **Manual cuts**: cut any selected range, not only detected silences; undo/redo for the cut list
 - [ ] **Streaming export**: encode segment by segment instead of rendering the whole output in memory (lifts the 60-minute export limit)
 - [x] **Video preview**: `VideoDecoder` → `OffscreenCanvas` in a media worker, shared-memory clock, at most one live frame
-- [ ] **Timeline thumbnails**: a strip of video frames above the waveform
+- [x] **Timeline thumbnails**: a filmstrip track above the waveform, decoded in its own worker with an LRU of tiles
 - [x] **9:16 export**: draggable crop, `VideoEncoder` H.264 + AAC, MP4 muxed straight to OPFS, cancel
 - [ ] **Captions**: burn-in text overlays during export
 - [ ] **Keyframed crop**: let the frame follow the speaker over time instead of a single position

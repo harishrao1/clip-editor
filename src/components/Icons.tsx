@@ -83,6 +83,23 @@ export const FolderIcon = (p: IconProps) => (
     <path d="M3 6.5V18a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8.5a1 1 0 0 0-1-1h-8l-2-2.5H4a1 1 0 0 0-1 1z" strokeLinejoin="round" />
   </Icon>
 );
+export const LockIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="5" y="11" width="14" height="9" rx="1.5" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </Icon>
+);
+export const FilmIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="3.5" y="5" width="17" height="14" rx="1.5" />
+    <path d="M7.5 5v14M16.5 5v14M3.5 9.5h4M3.5 14.5h4M16.5 9.5h4M16.5 14.5h4" />
+  </Icon>
+);
+export const WaveIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M5 10v4M9.5 6v12M14 8.5v7M18.5 4.5v15" strokeWidth={2.2} strokeLinecap="round" />
+  </Icon>
+);
 export const KeyboardIcon = (p: IconProps) => (
   <Icon {...p}>
     <rect x="3" y="6" width="18" height="12" rx="1.5" />
@@ -121,7 +138,7 @@ export const AlertIcon = (p: IconProps) => (
 export const LogoMark = ({ size = 26 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
     <rect width="32" height="32" rx="8" fill="var(--accent)" />
-    <path d="M11 8H8v16h3M21 8h3v16h-3" fill="none" stroke="#fff" strokeWidth="2.5" />
-    <rect x="14.75" y="7" width="2.5" height="18" rx="1" fill="#fff" />
+    <path d="M11 8H8v16h3M21 8h3v16h-3" fill="none" stroke="var(--accent-text)" strokeWidth="2.5" />
+    <rect x="14.75" y="7" width="2.5" height="18" rx="1" fill="var(--accent-text)" />
   </svg>
 );

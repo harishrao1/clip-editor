@@ -22,20 +22,21 @@ import {
   CheckIcon,
   CloseIcon,
   DownloadIcon,
+  FilmIcon,
   FolderIcon,
   ForwardIcon,
   KeyboardIcon,
+  LockIcon,
   LogoMark,
   LoopIcon,
   MinusIcon,
-  MoonIcon,
   PauseIcon,
   PlayIcon,
   PlusIcon,
-  SunIcon,
   ToEndIcon,
   ToStartIcon,
   UploadIcon,
+  WaveIcon,
 } from './components/Icons';
 import { Ingest } from './ingest/client';
 import { cropRect, FRAMES, outputSize, type CropCenter, type FrameId } from './video/crop';
@@ -43,6 +44,7 @@ import { Filmstrip } from './video/filmstrip';
 import { ExportCancelled, exportVideo } from './video/export';
 import type { MediaInfo } from './ingest/protocol';
 import { useTheme } from './theme';
+import { ThemePicker } from './components/ThemePicker';
 import { formatBytes, formatTime, parseTime } from './time';
 
 const SAMPLES_PER_PEAK = 128;
@@ -79,7 +81,7 @@ type Busy = { stage: string; ratio?: number };
 type Toast = { kind: 'success' | 'error'; title: string; detail?: string };
 
 export default function App() {
-  const [theme, toggleTheme] = useTheme();
+  const [theme, setTheme] = useTheme();
   const [player] = useState(() => new Player());
   const [clip, setClip] = useState<Clip | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
@@ -343,6 +345,8 @@ export default function App() {
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+      // Menus handle their own arrow keys, Space and Enter.
+      if (e.target instanceof Element && e.target.closest('[role="menu"]')) return;
       if (e.key === '?' || (e.code === 'Slash' && e.shiftKey)) {
         e.preventDefault();
         shortcutsDialog.current?.showModal();
@@ -406,7 +410,7 @@ export default function App() {
       if (format === 'mp3') {
         // Loaded on demand so the 30 MB encoder is only downloaded when someone needs it.
         const { wavToMp3 } = await import('./audio/ffmpeg');
-        blob = await wavToMp3(blob, (stage, ratio) =>
+        blob = await wavToMp3(blob, rendered.duration, (stage, ratio) =>
           setBusy({ stage, ratio: ratio === undefined ? 0.5 : 0.5 + ratio * 0.5 }),
         );
       }
@@ -537,22 +541,29 @@ export default function App() {
         </div>
         {clip && (
           <div className="doc">
+            <span className="doc-kind" title={clip.video ? 'Video file' : 'Audio file'}>
+              {clip.video ? <FilmIcon size={14} /> : <WaveIcon size={14} />}
+            </span>
             <span className="doc-name" title={clip.name}>
               {clip.name}
             </span>
-            <button className="btn btn-quiet btn-sm" onClick={() => fileInput.current?.click()}>
+            <span className="doc-length mono">{formatTime(clip.duration)}</span>
+            <button className="btn btn-quiet btn-sm doc-open" onClick={() => fileInput.current?.click()}>
               <FolderIcon size={15} />
               Open another file
             </button>
           </div>
         )}
         <div className="topbar-actions">
+          <span className="local-badge" title="Decoding, editing and encoding all happen in this tab. Nothing is uploaded.">
+            <LockIcon size={13} />
+            Local only
+          </span>
+          <span className="topbar-sep" aria-hidden="true" />
           <IconButton label="Keyboard shortcuts (?)" onClick={() => shortcutsDialog.current?.showModal()}>
             <KeyboardIcon />
           </IconButton>
-          <IconButton label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} onClick={toggleTheme}>
-            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-          </IconButton>
+          <ThemePicker theme={theme} onChange={setTheme} />
         </div>
       </header>
 
@@ -851,18 +862,28 @@ export default function App() {
 
       {clip && (
         <footer className="statusbar">
-          <span>{formatTime(clip.duration)}</span>
-          <span>{(clip.sampleRate / 1000).toFixed(1)} kHz</span>
-          <span>{channelName(clip.numberOfChannels)}</span>
-          {clip.details.map((d) => (
-            <span key={d}>{d}</span>
-          ))}
-          <span className="statusbar-optional">{clip.memoryNote}</span>
-          <span className="statusbar-optional">
-            {clip.analysedUntil < clip.duration
-              ? `Analysing ${Math.floor((clip.analysedUntil / clip.duration) * 100)}%`
-              : clip.sourceNote}
+          <span className="statusbar-group">
+            <span>{(clip.sampleRate / 1000).toFixed(1)} kHz</span>
+            <span>{channelName(clip.numberOfChannels)}</span>
+            {clip.details.map((d) => (
+              <span key={d}>{d}</span>
+            ))}
           </span>
+          <span className="statusbar-optional">{clip.memoryNote}</span>
+          {clip.analysedUntil < clip.duration ? (
+            <span className="statusbar-progress" role="status">
+              Analysing
+              <span className="meter" aria-hidden="true">
+                <span style={{ width: `${(clip.analysedUntil / clip.duration) * 100}%` }} />
+              </span>
+              <span className="mono">{Math.floor((clip.analysedUntil / clip.duration) * 100)}%</span>
+            </span>
+          ) : (
+            <span className="statusbar-optional statusbar-done">
+              <CheckIcon size={12} />
+              {clip.sourceNote}
+            </span>
+          )}
           <span
             className="statusbar-end"
             title={
@@ -902,38 +923,44 @@ export default function App() {
   );
 }
 
+/** WebCodecs is what makes long files practical; without it only the small-file fallback works. */
+const HAS_WEBCODECS = typeof window !== 'undefined' && 'AudioDecoder' in window && 'VideoDecoder' in window;
+
 function OpenScreen(props: { loading: string | null; dragOver: boolean; onBrowse: () => void; onSample: () => void }) {
   return (
     <main className="open">
       <div className="open-grid">
         <div className="open-copy">
-          <h1>Cut long recordings into short clips.</h1>
+          <p className="eyebrow">
+            <LockIcon size={13} />
+            Runs entirely in your browser
+          </p>
+          <h1>
+            Cut long recordings into <em>short clips.</em>
+          </h1>
           <p className="open-lede">
             Open an interview, podcast or screen recording. Mark the part you want, drop the silences, and export a
-            vertical video or an audio clip. Everything happens in this tab; the file is never uploaded.
+            vertical video or an audio clip. The file never leaves your computer.
           </p>
           <div className="open-actions">
             <button className="btn btn-primary btn-lg" onClick={props.onBrowse} disabled={!!props.loading}>
+              <FolderIcon size={17} />
               Choose a file
             </button>
             <button className="btn btn-outline btn-lg" onClick={props.onSample} disabled={!!props.loading}>
+              <PlayIcon size={15} />
               Try the sample
             </button>
           </div>
-          <dl className="open-facts">
-            <div>
-              <dt>Opens</dt>
-              <dd>MP4, MOV, WebM, MKV, WAV, MP3, M4A, OGG, FLAC</dd>
-            </div>
-            <div>
-              <dt>Exports</dt>
-              <dd>9:16 or 1:1 MP4 (H.264 + AAC), WAV, MP3</dd>
-            </div>
-            <div>
-              <dt>Size</dt>
-              <dd>Hours-long files are fine. They're read from disk in pieces, never loaded whole.</dd>
-            </div>
-          </dl>
+          {!HAS_WEBCODECS && (
+            <p className="notice open-notice" role="note">
+              <AlertIcon size={15} />
+              <span>
+                This browser doesn't support WebCodecs, so only small audio files will open and video export is off.
+                Use a recent Chrome or Edge for the full editor.
+              </span>
+            </p>
+          )}
         </div>
 
         <div
@@ -950,7 +977,30 @@ function OpenScreen(props: { loading: string | null; dragOver: boolean; onBrowse
             }
           }}
         >
+          <div className="sketch-head" aria-hidden="true">
+            <span className="sketch-file">
+              <FilmIcon size={13} />
+              interview-episode-12.mp4
+            </span>
+            <span className="mono">
+              <b>00:42.18</b> / 58:03.40
+            </span>
+          </div>
           <EditorSketch />
+          <div className="sketch-legend" aria-hidden="true">
+            <span>
+              <i className="swatch swatch-keep" />
+              Kept
+            </span>
+            <span>
+              <i className="swatch swatch-cut" />
+              Cut silence
+            </span>
+            <span>
+              <i className="swatch swatch-silence" />
+              Silence
+            </span>
+          </div>
           <div className="dropzone-text">
             {props.loading ? (
               <span className="dropzone-loading" role="status">
@@ -959,6 +1009,7 @@ function OpenScreen(props: { loading: string | null; dragOver: boolean; onBrowse
               </span>
             ) : (
               <>
+                <UploadIcon size={16} />
                 <strong>{props.dragOver ? 'Release to open' : 'Drop a file here'}</strong>
                 <span>or click to choose one</span>
               </>
@@ -966,6 +1017,24 @@ function OpenScreen(props: { loading: string | null; dragOver: boolean; onBrowse
           </div>
         </div>
       </div>
+
+      <ol className="steps">
+        <li>
+          <span className="step-num mono">01</span>
+          <strong>Open</strong>
+          <span>MP4, MOV, WebM, MKV, WAV, MP3, M4A, OGG or FLAC. Hours-long files open in about a second.</span>
+        </li>
+        <li>
+          <span className="step-num mono">02</span>
+          <strong>Mark and cut</strong>
+          <span>Drag the clip edges, then remove the silences the editor finds, or keep the ones you want.</span>
+        </li>
+        <li>
+          <span className="step-num mono">03</span>
+          <strong>Export</strong>
+          <span>A 9:16 or 1:1 MP4 for Reels, Shorts and TikTok, or WAV and MP3 for audio.</span>
+        </li>
+      </ol>
     </main>
   );
 }

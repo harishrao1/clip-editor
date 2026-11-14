@@ -1,36 +1,52 @@
 import { useState } from 'react';
+import { DEFAULT_THEME, THEMES, type ThemeId } from './themeList';
 
-export type ThemeName = 'light' | 'dark';
+export { THEMES, type ThemeId };
 
-/** The design is light-first; dark is an explicit choice that's remembered. */
-const DEFAULT_THEME: ThemeName = 'light';
+/** Earlier versions stored just 'light' or 'dark'; map those onto today's themes. */
+const LEGACY: Record<string, ThemeId> = { light: 'sand', dark: 'graphite' };
 
-function savedTheme(): ThemeName | null {
+function isTheme(v: string | null): v is ThemeId {
+  return THEMES.some((t) => t.id === v);
+}
+
+function savedTheme(): ThemeId | null {
   try {
     const v = localStorage.getItem('theme');
-    return v === 'light' || v === 'dark' ? v : null;
+    if (v && LEGACY[v]) return LEGACY[v];
+    return isTheme(v) ? v : null;
   } catch {
     return null;
   }
 }
 
-export function useTheme(): [ThemeName, () => void] {
-  const [theme, setTheme] = useState<ThemeName>(() => savedTheme() ?? DEFAULT_THEME);
+/** Applies a theme to the document: the data attribute drives CSS, the meta tag tints mobile browser chrome. */
+function applyTheme(id: ThemeId) {
+  document.documentElement.dataset.theme = id;
+  const bg = THEMES.find((t) => t.id === id)?.bg;
+  if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+}
 
-  const toggle = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
+export function useTheme(): [ThemeId, (id: ThemeId) => void] {
+  const [theme, setThemeState] = useState<ThemeId>(() => {
+    const initial = savedTheme() ?? DEFAULT_THEME;
+    applyTheme(initial);
+    return initial;
+  });
+
+  const setTheme = (id: ThemeId) => {
     // Set the attribute before React re-renders: child components read CSS
     // variables for canvas drawing in their own effects, which run first.
-    document.documentElement.dataset.theme = next;
-    setTheme(next);
+    applyTheme(id);
+    setThemeState(id);
     try {
-      localStorage.setItem('theme', next);
+      localStorage.setItem('theme', id);
     } catch {
-      // Storage can be unavailable (private mode); the toggle still works for this visit.
+      // Storage can be unavailable (private mode); the choice still applies for this visit.
     }
   };
 
-  return [theme, toggle];
+  return [theme, setTheme];
 }
 
 /** Reads a set of CSS custom properties from :root, for canvas drawing. */
