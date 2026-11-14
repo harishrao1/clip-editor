@@ -1,6 +1,6 @@
 # Clip Editor
 
-**Live: [clip-editor-mocha.vercel.app](https://clip-editor-mocha.vercel.app)**
+**Live: [clipeditor-app.vercel.app](https://clipeditor-app.vercel.app)**
 
 A browser-only clip editor for podcasts, interviews and screen recordings. Files never leave the machine: decoding, waveform analysis, trimming, silence removal, effects and encoding (including 9:16 MP4) all run client-side. Files are never loaded into memory whole, so multi-hour recordings open in under a second.
 
